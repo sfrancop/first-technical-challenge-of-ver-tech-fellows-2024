@@ -1,0 +1,330 @@
+diff --git a/part1/question1.py b/part1/question1.py
+index 5c99fdb..d35b02e 100644
+--- a/part1/question1.py
++++ b/part1/question1.py
+@@ -20,16 +20,23 @@ def get_city_temperature(city):
+       return 17
+    if city == "San Francisco":
+       return 16
++   if city == "New York":
++      return 14
+ 
+ def get_city_weather(city):
++   
++   sky_condition = None
+ 
+-  sky_condition = None
+-
+-  if city == "Sao Paulo":
++   if city == "Sao Paulo":
+      sky_condition = "cloudy"
+-  elif city == "New York":
++   elif city == "New York":
+      sky_condition = "rainy"
++   elif city == "San Francisco":
++     sky_condition = "raniy"
++   elif city == "Quito":
++     sky_condition = "sunny"
++  
+ 
+-  temperature = get_city_temperature(city)
++   temperature = get_city_temperature(city)
+ 
+-  return str(temperature) + " degrees and " + sky_condition
+\ No newline at end of file
++   return str(temperature) + " degrees and " + sky_condition
+\ No newline at end of file
+diff --git a/part1/question2.py b/part1/question2.py
+index 34a9b01..d82247e 100644
+--- a/part1/question2.py
++++ b/part1/question2.py
+@@ -15,7 +15,10 @@
+ # it. As always, there is a test suite that checks the result. It is in 
+ # `question2_test.py.`
+ 
+-swapper = None
++def swapper_function(x):
++  return (x[1], x[0])
++
++swapper = swapper_function
+ 
+ def run_swapper(list_of_tuples):
+   return list(map(swapper, list_of_tuples))
+\ No newline at end of file
+diff --git a/part1/question3.py b/part1/question3.py
+index 04fab99..81843b8 100644
+--- a/part1/question3.py
++++ b/part1/question3.py
+@@ -26,8 +26,39 @@
+ # formulas and their outputs in the test file, `question3_test.py`.
+ 
+ # This function should return an oven instance!
++
++class Oven:
++  
++  def add(self, item):
++    self.items.append(item)
++
++  def freeze(self):
++    if self.items == ["water", "air"]:
++      self.result = "snow"
++    else:
++      self.result = " and ".join(self.items) + " freezed"
++  
++  def boil(self):
++    if self.items == ["lead", "mercury"]:
++      self.result = "gold"
++    elif self.items == ["cheese", "dough", "tomato"]:
++      self.result = "pizza"
++    else:
++      self.result = " and ".join(self.items) + " boiled"
++  
++  def wait(self):
++    self.result = " and ".join(self.items)
++  
++  def get_output(self):
++    return self.result
++  
++  def __init__(self):
++    self.items = []
++    self.result = None
++    
++
+ def make_oven():
+-  None
++  return Oven()
+ 
+ def alchemy_combine(oven, ingredients, temperature):
+   
+diff --git a/part1/question3_test.py b/part1/question3_test.py
+index 6cb6c89..472101e 100644
+--- a/part1/question3_test.py
++++ b/part1/question3_test.py
+@@ -1,3 +1,5 @@
++from question3 import make_oven, alchemy_combine
++
+ def test_alchemy_combine():
+ 
+   assert alchemy_combine(
+@@ -16,4 +18,10 @@ def test_alchemy_combine():
+     make_oven(),
+     ["cheese", "dough", "tomato"],
+     150
+-  ) == "pizza"
+\ No newline at end of file
++  ) == "pizza"
++  
++  assert alchemy_combine(
++    make_oven(),
++    ["chocolate", "cheese"],
++    55
++  ) == "chocolate and cheese"
+\ No newline at end of file
+diff --git a/part1/question4.py b/part1/question4.py
+index 1e1b2bf..e8a6719 100644
+--- a/part1/question4.py
++++ b/part1/question4.py
+@@ -24,7 +24,10 @@ import pets_db
+ 
+ sql_pets_owned_by_nobody = """
+ 
+-Your SQL here.
++    SELECT animals.name as pet_name, animals.species, animals.age
++    FROM animals
++    LEFT JOIN people_animals ON animals.animal_id = people_animals.pet_id
++    WHERE people_animals.owner_id IS NULL
+ 
+ """
+ 
+@@ -34,7 +37,11 @@ Your SQL here.
+ 
+ sql_pets_older_than_owner = """
+ 
+-Your SQL here.
++    SELECT COUNT(*) FROM people_animals
++    JOIN animals ON people_animals.pet_id = animals.animal_id
++    JOIN people ON people_animals.owner_id = people.person_id
++    WHERE animals.age > people.age
++
+ 
+ """
+ 
+@@ -43,6 +50,15 @@ Your SQL here.
+ # The output should be a list of tuples in the format: (<person name>, <pet name>, <species>)
+ sql_only_owned_by_bessie = """ 
+ 
+-Your SQL here.
++    SELECT people.name as person_name, animals.name as pet_name, animals.species
++    FROM people
++    JOIN people_animals ON people.person_id = people_animals.owner_id
++    JOIN animals ON people_animals.pet_id = animals.animal_id
++    WHERE people.name = 'bessie'
++    AND (
++        SELECT COUNT(*)
++        FROM people_animals AS pa
++        WHERE pa.pet_id = people_animals.pet_id
++    ) = 1
+ 
+ """
+\ No newline at end of file
+diff --git a/part1/question5.py b/part1/question5.py
+index f76654f..378b3dc 100644
+--- a/part1/question5.py
++++ b/part1/question5.py
+@@ -20,7 +20,11 @@
+ 
+ sql_create_favorite_foods = """
+ 
+-Your SQL here.
++CREATE TABLE favorite_foods (
++    food_id integer,
++    name text,
++    vegetarian integer
++)
+ 
+ """
+ 
+@@ -30,7 +34,10 @@ Your SQL here.
+ 
+ sql_alter_tables_with_favorite_food = """
+ 
+-Your SQL here.
++ALTER TABLE animals
++ADD COLUMN favorite_food_id integer;
++ALTER TABLE people
++ADD COLUMN favorite_food_id integer;
+ 
+ """
+ 
+@@ -40,6 +47,8 @@ Your SQL here.
+ 
+ sql_select_all_vegetarian_pets = """
+ 
+-Your SQL here.
+-
++SELECT animals.name, favorite_foods.name
++FROM animals
++INNER JOIN favorite_foods ON animals.favorite_food_id = favorite_foods.food_id
++WHERE favorite_foods.vegetarian = 1;
+ """
+\ No newline at end of file
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/DrinkClass.java b/part2/src/main/java/org/velezreyes/quiz/question6/DrinkClass.java
+new file mode 100644
+index 0000000..23287e7
+--- /dev/null
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/DrinkClass.java
+@@ -0,0 +1,23 @@
++package org.velezreyes.quiz.question6;
++
++public class DrinkClass implements Drink {
++
++    String name;
++    boolean fizzy;
++    
++    public DrinkClass(String name, boolean fizzy) {
++        this.name = name;
++        this.fizzy = fizzy;
++    }
++
++    @Override
++    public String getName() {
++        return this.name;
++    }
++
++    @Override
++    public boolean isFizzy() {
++        return this.fizzy;
++    }
++    
++}
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineClass.java b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineClass.java
+new file mode 100644
+index 0000000..45ad307
+--- /dev/null
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineClass.java
+@@ -0,0 +1,46 @@
++package org.velezreyes.quiz.question6;
++
++public class VendingMachineClass implements VendingMachine {
++
++    private int availableMoney;
++
++    public VendingMachineClass() {
++        this.availableMoney = 0;
++    }
++
++    @Override
++    public void insertQuarter() {
++        this.availableMoney += 25;
++    }
++
++    @Override
++    public Drink pressButton(String name) throws NotEnoughMoneyException, UnknownDrinkException {
++        if (this.availableMoney  == 0) {
++            throw new NotEnoughMoneyException();
++        }
++        else{
++            if (name=="ScottCola") {
++                if (this.availableMoney >= 75) {
++                    this.availableMoney -= 75;
++                    return new DrinkClass(name, true);
++                }
++                else {
++                    throw new NotEnoughMoneyException();
++                }
++            }
++            else if (name=="KarenTea") {
++                if (this.availableMoney >= 100) {
++                    this.availableMoney -= 100;
++                    return new DrinkClass(name, false);
++                }
++                else {
++                    throw new NotEnoughMoneyException();
++                }
++            }
++            else {
++                throw new UnknownDrinkException();
++            }
++        }
++    }
++
++}
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+index 85742c4..a132b26 100644
+--- a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+@@ -3,7 +3,7 @@ package org.velezreyes.quiz.question6;
+ public class VendingMachineImpl {
+ 
+   public static VendingMachine getInstance() {
+-    // Fix me!
+-    return null;
++    VendingMachine vendingMachine = new VendingMachineClass();
++    return vendingMachine;
+   }
+ }
+diff --git a/part3/security_question.md b/part3/security_question.md
+new file mode 100644
+index 0000000..dc17765
+--- /dev/null
++++ b/part3/security_question.md
+@@ -0,0 +1,15 @@
++# Security question
++
++I will use:
++
++- Broken Access Control to ensure that my system correctly implements access controls. This includes making sure that customer support employees can only view and modify customer information and orders, and cannot access other parts of the system.
++
++- Cryptographic Failures to make sure that sensitive data such as passwords and personal information are stored securely in the MySQL database using proper encryption methods with hashing.
++
++- Injection to protect your system from injection attacks by validating and sanitizing inputs in the mobile app, web frontend, and Python backend.
++
++- Insecure Design: Use secure design principles when developing my system. This includes using threat modeling, secure design patterns and principles, and reference architectures.
++
++- Vulnerable and Outdated Components: Regularly update all components of my system, including Kubernetes containers, Android and iOS apps and other technologies.
++
++- Identification and Authentication Failures: Implementing strong identification and authentication mechanisms. This includes using multi-factor authentication and ensuring password policies are robust.
+diff --git a/quiz_pets b/quiz_pets
+new file mode 100644
+index 0000000..af27a2e
+Binary files /dev/null and b/quiz_pets differ
